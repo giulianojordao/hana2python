@@ -1,4 +1,5 @@
 import sys
+import os.path
 def get_col_name(s):
     """Takes splitted create sql fragment and returns columnname"""
     start_idx = s.index('"')
@@ -15,6 +16,8 @@ def parse_hana_header(folder):
 	return column_names
 
 
+
+
 def read_hanaexport(folder):
 	"""Read HANA Export from Folder and return Pandas Dataframe"""
 	try:
@@ -23,9 +26,20 @@ def read_hanaexport(folder):
 		raise Exception("Could not load pandas")
 
 	column_names = parse_hana_header(folder)
-	print column_names
-	data = pd.read_csv("%s/data"%folder,delimiter=",",header=None, names= column_names)
+
+
+	inputfile = None
+	options = [("%s/data"%folder, None) , ("%s/data.bz2"%folder, "bz2") , ("%s/data.gz"%folder,"gz") ]
+	for filepath, compression_opt in options:
+		if os.path.isfile(filepath): 
+			inputfile = filepath
+			compression = compression_opt
+	if not inputfile:
+		raise Exception("Could not find 'data' file. Valid inputfilenames are %s" % options)				
+
+	data = pd.read_csv(inputfile,delimiter=",",header=None, names= column_names, compression=compression)
 	return data
+
 
 if __name__ == "__main__":
 	sys.exit()
