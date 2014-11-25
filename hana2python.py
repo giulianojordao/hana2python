@@ -9,10 +9,9 @@ def get_col_name(s):
 
 def parse_hana_header(folder):
 	""" Load a HANA Exported Table from folder, Returns Header"""
-
 	create_sql_query = open('%s/create.sql' %folder ).read()
-	create_sql_query = create_sql_query[create_sql_query.index("( "):]
-	column_names = [get_col_name(x) for x in create_sql_query.split(",")[:]]
+	create_sql_query = create_sql_query[create_sql_query.index("("):]
+	column_names = [get_col_name(x) for x in create_sql_query.split(", ")[:]]
 	return column_names
 
 
@@ -26,10 +25,8 @@ def read_hanaexport(folder):
 		raise Exception("Could not load pandas")
 
 	column_names = parse_hana_header(folder)
-
-
 	inputfile = None
-	options = [("%s/data"%folder, None) , ("%s/data.bz2"%folder, "bz2") , ("%s/data.gz"%folder,"gz") ]
+	options = [("%s/data.csv"%folder, None) , ("%s/data.bz2"%folder, "bz2") , ("%s/data.gz"%folder,"gz") ]
 	for filepath, compression_opt in options:
 		if os.path.isfile(filepath): 
 			inputfile = filepath
